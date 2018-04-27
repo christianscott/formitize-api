@@ -3,9 +3,10 @@ import logging
 import os
 import re
 
-import formitize
-
 app = flask.Flask(__name__)
+if 'DYNO' in os.environ:
+    app.logger.addHandler(logging.StreamHandler(sys.stdout))
+    app.logger.setLevel(logging.ERROR)
 
 @app.route("/invoices")
 def invoices():

@@ -3,7 +3,6 @@ import enum
 import json
 
 import requests
-import dotenv
 
 import formitize.invoice as invoice
 

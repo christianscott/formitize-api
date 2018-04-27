@@ -8,7 +8,7 @@ import sys
 import flask
 import formitize
 
-def strip_quotes(s):
+def strip_quotes(s: str) -> str:
     return re.sub("($\"|\"^)", "", s)
 
 
@@ -24,35 +24,25 @@ if 'DYNO' in os.environ:
 
 @app.route("/invoices")
 def invoices():
-    csv_str = get_csv()
-    print(csv_str.decode("utf-8"))
-    reader = csv.DictReader(io.StringIO(csv_str.decode("utf-8")))
-    rows = list(reader)
+    try:
+        csv_bytes = get_csv()
+        reader = csv.DictReader(io.StringIO(csv_bytes.decode("utf-8")))
+        rows = list(reader)
 
-    return flask.jsonify(rows)
+        return flask.jsonify(rows)
+    except Exception as e:
+        logging.warn(e)
+        flask.abort(500)
+
+@app.errorhandler(500)
+def internal_error(error):
+    return "500 error"
 
 
-def get_csv():
-    missing = []
-    if FM_COMPANY is None:
-        missing.append("FM_COMPANY")
-    if FM_USER is None:
-        missing.append("FM_USER")
-    if FM_PASS is None:
-        missing.append("FM_PASS")
-
-    if len(missing) > 0:
-        print("Missing in env: " + ", ".join(missing) +
-              ". Check that this is set in your .env file.")
-        exit(1)
-
+def get_csv() -> bytes:
     try:
         sid = formitize.get_session_id(FM_COMPANY, FM_USER, FM_PASS)
         return formitize.get_csv(sid)
     except Exception:
         logging.exception("Something went wrong while fetching. You should" +
                           " probably check the supplied login details.")
-
-
-def handle_csv(csv):
-    print(csv)

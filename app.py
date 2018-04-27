@@ -1,7 +1,7 @@
 import flask
 import logging
 import os
-import re
+import sys
 
 app = flask.Flask(__name__)
 if 'DYNO' in os.environ:

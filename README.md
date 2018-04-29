@@ -2,67 +2,31 @@
 
 > Maintained by [Christian Scott](me@christianfscott.com)
 
-REST API for interfacing with Keboola Generic Extension.
+REST API for interfacing with Keboola Generic Extension. Hosted at https://vast-sierra-12331.herokuapp.com/.
+
+Currently only supports querying the `/crm/reports` 'invoices' tab, but extension is relatively easy.
+
+
+
+## Usage
+
+1. Grab a config JSON from the [home page](https://vast-sierra-12331.herokuapp.com/):
+![three](img/three.png)
+2. Paste config into the text box
+![one](img/one.png)
+![two](img/two.png)
+3. Hit 'save'
+4. Hit 'run' and confirm
+5. Wait for up to 30 seconds. The light should go green, and then the data will be in the bucket you specified in the config
+![four](img/four.png)
 
 ## Configuration
 
-```
-params = {
-    "date": {
-        "paydate": { "title": "Date Paid" },
-        "expectedpaydate": { "title": "Expected Pay Date" },
-        "invoicedate": { "title": "Invoice Date" },
-        "dateCreated": { "title": "Date Created" },
-        "dateModified": { "title": "Last Modified" }
-    },
-    "select": {
-        "paysource": {
-            "options": {
-                "-2": "All Methods",
-                "CASH": "Cash",
-                "EFT": "EFT",
-                "CHEQUE": "Cheque",
-                "CARDRECORD": "Card"
-            },
-            "title": "Payment Method"
-        },
-        "status": {
-            "options": {
-                "-2": "All Status",
-                "0": "Draft",
-                "1": "Open",
-                "3": "Cancelled"
-            },
-            "title": "Status"
-        },
-        "hasexternalsourceid": {
-            "options": { "-2": "Any", "0": "No", "1": "Yes" },
-            "title": "Is In Accounting"
-        },
-        "hasduplicatepaymentamount": {
-            "options": { "-2": "Any", "0": "No", "1": "Yes" },
-            "title": "Has Duplicate Payment Amount"
-        },
-        "overpaid": {
-            "options": { "-2": "Any", "0": "No", "1": "Yes" },
-            "title": "Overpaid"
-        }
-    },
-    "search": {
-        "invoicenumber": { "title": "Invoice Number" },
-        "reference": { "title": "Reference" },
-        "title": { "title": "Title" },
-        "summary": { "title": "Summary" },
-        "terms": { "title": "Terms" }
-    },
-    "number": {
-        "subtotal": { "title": "Sub Total" },
-        "tax": { "title": "Tax Amount" },
-        "total": { "title": "Total" },
-        "paid": { "title": "Amount Paid" }
-    }
-}
-```
+Use the config generator on [the home page](https://vast-sierra-12331.herokuapp.com/) to create config JSON for the keboola generic extractor.
+
+## Extending
+
+TODO ;)
 
 ## Running locally
 

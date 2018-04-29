@@ -7,7 +7,7 @@ import requests
 import formitize.invoice as invoice
 
 ROOT_URL = "https://service.formitize.com.au"
-ACCOUNTS_URL = ROOT_URL + "/crm/reports"
+REPORTS_URL = ROOT_URL + "/crm/reports"
 
 
 def get_session_id(company, username, password):
@@ -32,21 +32,19 @@ def get_session_id(company, username, password):
 
 
 # TODO: support other options including "deleted": "1" etc
-def get_csv(session_id, search=""):
+def get_csv(session_id: str, filters: invoice.InvoiceFilters) -> bytes:
     # using the session id from before, download the accounts csv with options
-
-    filters = invoice.InvoiceFilters()
-    filters.add_paid(invoice.Paid.UNPAID)
-
     data = filters.to_dict()
+
+    encoded_data = json.dumps(data)
 
     data = {"post": "invoices",
             "type": "crm/downloadcsv",
             "global": "true",
-            "value": search,
-            "data": data}
+            "value": "",
+            "data": encoded_data}
     cookies = {"sid": session_id}
-    r = requests.post(ACCOUNTS_URL, data=data, cookies=cookies)
+    r = requests.post(REPORTS_URL, data=data, cookies=cookies)
 
     if r.status_code != 200:
         raise Exception("accounts response not ok")

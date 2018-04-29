@@ -24,7 +24,9 @@ if 'DYNO' in os.environ:
 
 @app.route("/")
 def index():
-    return app.send_static_file('index.html')
+    options = formitize.invoice.options
+    form = flask.Markup(formitize.render_options.render(options))
+    return flask.render_template('index.html', form=form)
 
 
 @app.route("/invoices")

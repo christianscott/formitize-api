@@ -5,6 +5,7 @@ import json
 import requests
 
 import formitize.invoice as invoice
+import formitize.render_options as render_options
 
 ROOT_URL = "https://service.formitize.com.au"
 REPORTS_URL = ROOT_URL + "/crm/reports"

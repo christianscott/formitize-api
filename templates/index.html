@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <link href="https://unpkg.com/basscss@8.0.2/css/basscss.min.css" rel="stylesheet">
+  <style>
+    *, *::after, *::before { box-sizing: inherit; }
+    html,
+    body {
+      margin: 0;
+      padding: 0;
+      
+      background-color: #FEFEFE;
+      color: #333333;
+
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+      font-size: 16px;
+    }
+
+    input {
+      font-family: inherit;
+      font-size: inherit;
+    }
+
+    .bg-blue {
+      background-color: steelblue;
+      color: white;
+    }
+
+    .bg-silver {
+      background-color: #eeeeee;
+    }
+
+    label {
+      display: block;
+    }
+  </style>
+  <title>Config Generator</title>
+</head>
+<body>
+  <main class="p2 mx-auto max-width-4">
+    <h1 class="my0">Invoice CSV Config Generator</h1>
+    <section>
+      {{ form }}
+    </section>
+    <code></code>
+  </main>
+
+  <script>
+    (() => {
+      const NAMESPACE_RE = /^(\w+)(?=\.)/;
+      const TO_RE = /^(.+)(?=-to$)/;
+      const FROM_RE = /^(.+)(?=-from$)/;
+      const DATE_RE = /^(\d\d\d\d)-(\d\d)-(\d\d)$/;
+
+      const invoiceForm = document.querySelector("form");
+      if (invoiceForm == null) {
+        console.warn("could not find invoice form on the page");
+        return
+      }
+
+      invoiceForm.addEventListener("submit", handleFormSubmit);
+
+      function handleFormSubmit(ev) {
+        ev.preventDefault();
+
+        const params = {};
+
+        const formData = new FormData(this);
+        for (let [key, value] of formData) {
+          const [namespace] = NAMESPACE_RE.exec(key);
+
+          if (namespace === "date" && !isBlank(value)) {
+            const [_, year, month, day] = DATE_RE.exec(value)
+            value = formatDate(year, month, day);
+          }
+          
+          if (namespace === "date" || namespace === "number") {
+            handleToFrom(params, namespace, key, value);
+          } else {
+            params[key] = value;
+          }
+        }
+
+        for (const key in params) {
+          if (Array.isArray(params[key])) {
+            if (params[key].every(isBlank)) {
+              delete params[key]
+              continue
+            }
+
+            params[key] = params[key].join(",");
+          } else {
+            if (isBlank(params[key])) {
+              delete params[key]
+            }
+          }
+        }
+
+        const config = {
+          parameters: {
+            api: {
+              baseUrl: "https://vast-sierra-12331.herokuapp.com/"
+            },
+            config: {
+              outputBucket: "ge-formitize-reports",
+              jobs: [
+                {
+                  endpoint: "invoices",
+                  params: params
+                }
+              ]
+            }
+          }
+        };
+
+        document.querySelector("code").innerHTML = JSON.stringify(config, 2);
+      }
+
+      function isBlank(v) {
+        return v == null || v === ""
+      }
+
+      function formatDate(year, month, day) {
+        const monthNames = [
+          "January", "February", "March",
+          "April", "May", "June", "July",
+          "August", "September", "October",
+          "November", "December"
+        ];
+
+        const monthIndex = parseInt(month, 10);
+
+        return `${day} ${monthNames[monthIndex]} ${year}`;
+      }
+
+      function handleToFrom(params, namespace, key, value) {
+        let baseKey, idx;
+        if (FROM_RE.test(key)) {
+          baseKey = FROM_RE.exec(key)[0];
+          idx = 0;
+        } else {
+          baseKey = TO_RE.exec(key)[0];
+          idx = 1;
+        }
+
+        if (params[baseKey] == null) {
+          params[baseKey] = new Array(2);
+        }
+
+        params[baseKey][idx] = value;
+      }
+    })()
+  </script>
+</body>
+</html>
